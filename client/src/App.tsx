@@ -1,122 +1,109 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import ConfigPanel from "./components/ConfigPanel";
+import TrainingChart from "./components/TrainingChart";
+import PerformanceStats from "./components/PerformanceStats";
+import PolicyHeatmap from "./components/PolicyHeatmap";
+import LLMExplanation from "./components/LLMExplanation";
+import { trainAgent, type TrainResponse } from "./api/client";
+import { loadPrices } from "./data/loadPrices";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [result, setResult] = useState<TrainResponse | null>(null);
+  const [isTraining, setIsTraining] = useState(false);
+  const [ticker, setTicker] = useState("");
+
+  const handleTrain = async (config: {
+    ticker: string;
+    alpha: number;
+    gamma: number;
+    epsilon: number;
+    episodes: number;
+  }) => {
+    setIsTraining(true);
+    setTicker(config.ticker);
+    try {
+      const prices = await loadPrices(config.ticker);
+      const response = await trainAgent({
+        prices,
+        alpha: config.alpha,
+        gamma: config.gamma,
+        epsilon: config.epsilon,
+        episodes: config.episodes,
+      });
+      setResult(response);
+    } catch (err) {
+      console.error("Training failed:", err);
+    } finally {
+      setIsTraining(false);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="min-h-screen p-6 md:p-10 max-w-[1400px] mx-auto">
+      {/* Header */}
+      <header className="mb-10 animate-in">
+        <div className="flex items-baseline gap-3 mb-2">
+          <h1 className="text-4xl tracking-tight" style={{ color: "var(--accent)" }}>
+            TradeRL
+          </h1>
+          <span
+            className="font-mono text-xs tracking-widest uppercase"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Q-Learning Trading Agent
+          </span>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <div
+          className="h-px w-full"
+          style={{ background: "linear-gradient(to right, var(--accent), transparent)" }}
+        />
+      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <aside className="lg:col-span-3 animate-in animate-in-delay-1">
+          <ConfigPanel onTrain={handleTrain} isTraining={isTraining} />
+        </aside>
+        <main className="lg:col-span-9 space-y-6">
+          {result ? (
+            <>
+              <div className="animate-in animate-in-delay-1">
+                <PerformanceStats
+                  finalReturn={result.finalReturn}
+                  buyHoldReturn={result.buyHoldReturn}
+                  ticker={ticker}
+                />
+              </div>
+              <div className="animate-in animate-in-delay-2">
+                <TrainingChart episodeRewards={result.episodeRewards} />
+              </div>
+              <div className="animate-in animate-in-delay-3">
+                <PolicyHeatmap qTable={result.qTable} />
+              </div>
+              <div className="animate-in animate-in-delay-4">
+                <LLMExplanation result={result} ticker={ticker} />
+              </div>
+            </>
+          ) : (
+            <div
+              className="rounded-xl p-16 flex flex-col items-center justify-center text-center"
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+            >
+              <div
+                className="text-5xl mb-4"
+                style={{ color: "var(--text-muted)" }}
+              >
+              </div>
+              <p style={{ color: "var(--text-secondary)" }} className="text-lg mb-1">
+                Configure parameters and train an agent
+              </p>
+              <p style={{ color: "var(--text-muted)" }} className="text-sm">
+                Select a ticker, adjust hyperparameters, then click Train Agent
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
