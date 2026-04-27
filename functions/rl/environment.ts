@@ -20,43 +20,58 @@ export interface StepResult
 	done: boolean;
 }
 
-const enum TrendValues
+const TrendValues = 
 {
 
-	StrongDown,
-	Down,
-	Flat,
-	Up,
-	StrongUp
+	StrongDown: 0,
+	Down: 1,
+	Flat: 2,
+	Up: 3,
+	StrongUp: 4
 
-}
+} as const;
+type TrendValues = typeof TrendValues[keyof typeof TrendValues];
 
-const enum Volatility
+const Volatility =
+
 {
 
-	Low,
-	Medium,
-	High
+	Low: 0,
+	Medium: 1,
+	High: 2
 
-}
+} as const;
+type Volatility = typeof Volatility[keyof typeof Volatility];
 
-export const enum Actions
+export const Actions =
+
 {
-	Buy,
-	Hold,
-	Sell
-}
 
-const enum Position
+	Buy: 0,
+	Hold: 1,
+	Sell: 2
+
+} as const;
+export type Actions = typeof Actions[keyof typeof Actions];
+
+export const Position =
+
 {
-	Unowned,
-	Owned
-}
+
+	Unowned: 0,
+	Owned: 1
+
+} as const;
+export type Position = typeof Position[keyof typeof Position];
 
 
 export function getState(prices: number[], dayIndex: number, position: Position): EnvironmentState
 {
-	const pctChange = (prices[dayIndex] - prices[dayIndex - LOOKBACK]) / prices[dayIndex - LOOKBACK];
+    if (dayIndex < LOOKBACK) {
+        throw new Error(`dayIndex must be >= LOOKBACK`);
+    }
+
+    const pctChange = (prices[dayIndex] - prices[dayIndex - LOOKBACK]) / prices[dayIndex - LOOKBACK];
 	const trend = getTrendValue(pctChange);
 
 	const dailyReturns: number[] = [];
