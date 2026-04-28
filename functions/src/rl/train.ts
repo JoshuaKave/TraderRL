@@ -1,5 +1,5 @@
-import { QAgent } from "./agent.ts";
-import { getState, step, LOOKBACK, Position } from "./environment.ts";
+import { QAgent } from "./agent.js";
+import { getState, step, LOOKBACK, Position } from "./environment.js";
 
 export interface TrainConfig {
   prices: number[];

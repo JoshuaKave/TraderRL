@@ -1,14 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "noEmit": true,
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
     "types": ["node"]
   },
-  "include": ["./**/*.ts"]
+  "compileOnSave": true,
+  "include": [
+    "src"
+  ]
 }

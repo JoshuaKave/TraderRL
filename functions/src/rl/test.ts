@@ -1,6 +1,6 @@
-import { train } from "./train.ts";
-import { getState, step, LOOKBACK, NUM_STATES, NUM_ACTIONS, Position, Actions } from "./environment.ts";
-import { QAgent } from "./agent.ts";
+import { train } from "./train.js";
+import { getState, step, LOOKBACK, NUM_STATES, NUM_ACTIONS, Position, Actions } from "./environment.js";
+import { QAgent } from "./agent.js";
 
 let passed = 0;
 let failed = 0;

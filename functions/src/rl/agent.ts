@@ -1,4 +1,4 @@
-import {NUM_STATES, NUM_ACTIONS, Actions} from './environment.ts';
+import {NUM_STATES, NUM_ACTIONS, Actions} from './environment.js';
 
 export class QAgent
 {
