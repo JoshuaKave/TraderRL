@@ -1,5 +1,5 @@
-import { QAgent } from "./agent.js";
-import { getState, step, LOOKBACK, Position } from "./environment.js";
+import {QAgent} from "./agent.js";
+import {getState, step, LOOKBACK, Position} from "./environment.js";
 
 export interface TrainConfig {
   prices: number[];
@@ -12,12 +12,12 @@ export interface TrainConfig {
 export interface TrainResult {
   episodeRewards: number[];
   qTable: number[][];
-  finalReturn: number;    
-  buyHoldReturn: number;    
+  finalReturn: number;
+  buyHoldReturn: number;
 }
 
 export function train(config: TrainConfig): TrainResult {
-  const { prices, alpha, gamma, epsilon, episodes } = config;
+  const {prices, alpha, gamma, epsilon, episodes} = config;
   const agent = new QAgent(alpha, gamma, epsilon);
   const episodeRewards: number[] = [];
 
